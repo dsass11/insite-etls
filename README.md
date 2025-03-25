@@ -57,10 +57,10 @@ Provides common functionality for Spark operations:
 
 - Session management: `createSparkSession()`
 - SQL execution: `executeSql()`
-- Database operations: `createDatabase()`, `showTables()`
-- Table management: `createTable()`, `describeTable()`
 - Partitioned data handling: `writePartitioned()`, `updatePartitionedTableMetadata()`
-
+- Accumulator approach: Use Spark accumulators to collect partition values during the initial DataFrame processing
+Each executor would add partition values to shared accumulators as it processes records
+No need to rescan the DataFrame after writing
 ### TestUtils
 
 Facilitates testing ETL implementations:
