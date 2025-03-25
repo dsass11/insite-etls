@@ -6,3 +6,5 @@ target/
 metastore_db/
 *.log
 derby.log
+.DS_Store
+dependency-reduced-pom.xml
