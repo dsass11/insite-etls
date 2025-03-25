@@ -1,8 +1,9 @@
 package com.insite.etl.common.utils
 
-import org.apache.spark.sql.functions.col
-import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, SparkSession}
+import scala.collection.JavaConverters._
+import org.apache.spark.sql.catalyst.encoders.RowEncoder
+
 
 /**
  * Utility functions for working with Spark
@@ -43,81 +44,20 @@ object SparkUtils {
    * @param query SQL query to execute
    * @return DataFrame with the query result
    */
+
   def executeSql(spark: SparkSession, query: String): DataFrame = {
     spark.sql(query)
   }
 
   /**
-   * Create database if it doesn't exist
+   * Write data with partitioning
    *
-   * @param spark SparkSession
-   * @param dbName Name of the database
+   * @param df            DataFrame to write
+   * @param basePath      Base path for the data
+   * @param version       Version/timestamp directory
+   * @param partitionCols Columns to partition by
+   * @return Map of partition columns and their values
    */
-  def createDatabase(spark: SparkSession, dbName: String): Unit = {
-    spark.sql(s"CREATE DATABASE IF NOT EXISTS $dbName")
-    println(s"Database created (if not exists): $dbName")
-  }
-
-  /**
-   * Create a table from a DataFrame
-   *
-   * @param spark SparkSession
-   * @param df DataFrame to save as a table
-   * @param tableName Full table name (database.table)
-   * @param partitionCols Optional partition columns
-   * @param mode Save mode (overwrite by default)
-   */
-  def createTable(
-                   spark: SparkSession,
-                   df: DataFrame,
-                   tableName: String,
-                   partitionCols: Seq[String] = Seq.empty,
-                   mode: String = "overwrite"
-                 ): Unit = {
-    // Drop table if exists
-    spark.sql(s"DROP TABLE IF EXISTS $tableName")
-
-    // Create writer
-    val writer = df.write
-      .format("parquet")
-      .mode(mode)
-
-    // Add partitioning if specified
-    val finalWriter = if (partitionCols.nonEmpty) {
-      writer.partitionBy(partitionCols: _*)
-    } else {
-      writer
-    }
-
-    // Save as table
-    finalWriter.saveAsTable(tableName)
-
-    println(s"Table created: $tableName")
-  }
-
-  /**
-   * Show all tables in a database
-   *
-   * @param spark SparkSession
-   * @param dbName Database name
-   */
-  def showTables(spark: SparkSession, dbName: String): Unit = {
-    val tables = spark.sql(s"SHOW TABLES IN $dbName")
-    println(s"Tables in $dbName:")
-    tables.show()
-  }
-
-  /**
-   * Describe a table structure
-   *
-   * @param spark SparkSession
-   * @param tableName Full table name (database.table)
-   */
-  def describeTable(spark: SparkSession, tableName: String): Unit = {
-    val description = spark.sql(s"DESCRIBE TABLE $tableName")
-    println(s"Structure of $tableName:")
-    description.show(100, false)
-  }
 
   def writePartitioned(
                         df: DataFrame,
@@ -131,26 +71,46 @@ object SparkUtils {
     println(s"Writing partitioned data to $fullPath")
     println(s"Partitioning by columns: ${partitionCols.mkString(", ")}")
 
+    // Create accumulators for each partition column
+    val spark = df.sparkSession
+    val accumulators = partitionCols.map { colName =>
+      colName -> spark.sparkContext.collectionAccumulator[String](s"partition_values_$colName")
+    }.toMap
+
+    // Create a copy of the DataFrame with partition value collection
+    // Use RowEncoder to provide the implicit encoder for Row
+    val rowEncoder = RowEncoder(df.schema)
+    val dfWithAccumulators = df.mapPartitions { partition =>
+      partition.map { row =>
+        // For each partition column, collect its value in the accumulator
+        partitionCols.foreach { colName =>
+          val fieldIndex = row.fieldIndex(colName)
+          val fieldValue = row.get(fieldIndex)
+          if (fieldValue != null) {
+            accumulators(colName).add(fieldValue.toString)
+          }
+        }
+        // Return the row unchanged
+        row
+      }
+    }(rowEncoder)
+
     // Write the data with partitioning
-    df.write
+    dfWithAccumulators.write
       .partitionBy(partitionCols: _*)
       .format("parquet")
       .mode("overwrite")
       .save(fullPath)
 
-    // Get distinct values for each partition column, always converting to string
-    val partitionValues = partitionCols.map { colName =>
-      // Cast to string in SQL to avoid type issues
-      val values = df.select(col(colName).cast("string").as(colName))
-        .distinct()
-        .collect()
-        .map(_.getString(0))
-
+    // Get partition values from accumulators
+    val accumulatedPartitionValues = partitionCols.map { colName =>
+      val accumulator = accumulators(colName)
+      val values = accumulator.value.asScala.toSet.toArray
       colName -> values
     }.toMap
 
-    println(s"Wrote data with partition values: $partitionValues")
-    partitionValues
+    println(s"Wrote data with partition values: $accumulatedPartitionValues")
+    accumulatedPartitionValues
   }
 
   /**
