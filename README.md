@@ -164,58 +164,77 @@ Common configuration parameters include:
 - **partition-columns**: Comma-separated list of partition columns
 
 Integration Testing
+-------------------
+
 This project includes a robust integration testing framework for validating ETL processes with special focus on Scala 2.11 compatibility with Spark 2.4.8. The integration tests ensure proper execution of ETL jobs in a containerized environment.
-Key Features
 
-Containerized Testing Environment: Docker-based setup ensures consistent, reproducible tests
-Scala 2.11 and Spark 2.4.8 Support: Custom container configuration specifically tuned for Scala 2.11
-Hive Metastore Integration: Tests validate proper interaction with Hive tables
-Modular Structure: Separate SQL, data, and configuration components for maintainability
+### Key Features
 
-Challenges Addressed
+*   **Containerized Testing Environment**: Docker-based setup ensures consistent, reproducible tests
+    
+*   **Scala 2.11 and Spark 2.4.8 Support**: Custom container configuration specifically tuned for Scala 2.11
+    
+*   **Hive Metastore Integration**: Tests validate proper interaction with Hive tables
+    
+*   **Modular Structure**: Separate SQL, data, and configuration components for maintainability
+    
 
-Scala Version Compatibility: Resolved the common NoSuchMethodError: scala.Predef$.refArrayOps error that occurs when trying to run Scala 2.11 code in a Scala 2.12 environment
-Hive Table Partitioning: Implemented proper table partitioning and registration
-Data Persistence: Ensured data persists correctly between test phases
-Test Automation: Created a structured testing approach with pre-test, execution, verification, and cleanup phases
+### Challenges Addressed
 
-Test Structure
+*   **Scala Version Compatibility**: Resolved the common NoSuchMethodError: scala.Predef$.refArrayOps error that occurs when trying to run Scala 2.11 code in a Scala 2.12 environment
+    
+*   **Hive Table Partitioning**: Implemented proper table partitioning and registration
+    
+*   **Data Persistence**: Ensured data persists correctly between test phases
+    
+*   **Test Automation**: Created a structured testing approach with pre-test, execution, verification, and cleanup phases
+    
+
+### Test Structure
+
 The integration test framework follows a four-phase approach:
 
-Pre-Test Phase: Initializes the environment and starts necessary services
-ETL Execution Phase: Loads test data, creates tables, and runs the ETL job
-Verification Phase: Validates the ETL job's output using SQL queries
-Cleanup Phase: Tears down the environment and cleans up resources
+1.  **Pre-Test Phase**: Initializes the environment and starts necessary services
+    
+2.  **ETL Execution Phase**: Loads test data, creates tables, and runs the ETL job
+    
+3.  **Verification Phase**: Validates the ETL job's output using SQL queries
+    
+4.  **Cleanup Phase**: Tears down the environment and cleans up resources
+    
 
-Implementation Details
+### Implementation Details
 
-Docker Compose: Uses Docker Compose to orchestrate containers
-External Files: Stores SQL queries and test data in separate files for clarity
-Consistent Environment: Ensures the ETL job runs in the same environment every time
-Error Handling: Captures and reports errors with appropriate exit codes
+*   **Docker Compose**: Uses Docker Compose to orchestrate containers
+    
+*   **External Files**: Stores SQL queries and test data in separate files for clarity
+    
+*   **Consistent Environment**: Ensures the ETL job runs in the same environment every time
+    
+*   **Error Handling**: Captures and reports errors with appropriate exit codes
+    
 
-Example Usage
+### Example Usage
+
 To run the integration tests:
-bashCopycd integration-tests/vehicle-etl-integration-test
-./run-etl-test.sh
-Project Structure
-integration-tests/
-└── vehicle-etl-integration-test/
-├── README.md                  # Test-specific documentation
-├── Dockerfile.spark           # Custom Spark 2.4.8 with Scala 2.11
-├── docker-compose-spark.yml   # Docker Compose configuration
-├── run-etl-test.sh            # Main test execution script
-├── data/                      # Test data
-│   └── vehicles.csv           # Sample vehicle data
-└── sql/                       # SQL scripts for test phases
-├── init-tables.sql        # Table creation and initialization
-└── verify-results.sql     # Result verification queries
-Lessons Learned
 
-Scala Compatibility: When working with Spark, ensure Scala version compatibility between your code and environment
-Docker Networking: Use Docker Compose networks to ensure services can communicate properly
-Hive Metastore: Configure Hive metastore connection string correctly for stable integration
-File Paths: Be careful with file paths inside containers vs. host machine
-Error Diagnostics: Add diagnostic commands to help troubleshoot failed tests
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   bashCopycd integration-tests/vehicle-etl-integration-test  ./run-etl-test.sh   `
+
+### Project Structure
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   Copyintegration-tests/  └── vehicle-etl-integration-test/      ├── README.md                  # Test-specific documentation      ├── Dockerfile.spark           # Custom Spark 2.4.8 with Scala 2.11      ├── docker-compose-spark.yml   # Docker Compose configuration      ├── run-etl-test.sh            # Main test execution script      ├── data/                      # Test data      │   └── vehicles.csv           # Sample vehicle data      └── sql/                       # SQL scripts for test phases          ├── init-tables.sql        # Table creation and initialization          └── verify-results.sql     # Result verification queries   `
+
+### Lessons Learned
+
+*   **Scala Compatibility**: When working with Spark, ensure Scala version compatibility between your code and environment
+    
+*   **Docker Networking**: Use Docker Compose networks to ensure services can communicate properly
+    
+*   **Hive Metastore**: Configure Hive metastore connection string correctly for stable integration
+    
+*   **File Paths**: Be careful with file paths inside containers vs. host machine
+    
+*   **Error Diagnostics**: Add diagnostic commands to help troubleshoot failed tests
+    
 
 The integration tests serve not only as validation tools but also as documentation of the expected behavior of the ETL processes.
