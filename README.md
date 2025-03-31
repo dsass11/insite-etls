@@ -218,7 +218,13 @@ The integration test framework follows a four-phase approach:
 
 To run the integration tests:
 
-bash integration-tests/vehicle-etl-integration-test  ./run-etl-test.sh   `
+mvn clean install ## to create the jar etl file
+
+cd integration-tests/vehicle-etl-integration-test ## move to itegration etl folder test
+
+cp ../../vehicle-etl/target/vehicle-etl-1.0-SNAPSHOT.jar ./vehicle-etl.jar ## copy the created jar into integration test location
+
+./run-etl-test.sh ## run the integration test   `
 
 ### Project Directory Structure
 
