@@ -218,11 +218,23 @@ The integration test framework follows a four-phase approach:
 
 To run the integration tests:
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   bashCopycd integration-tests/vehicle-etl-integration-test  ./run-etl-test.sh   `
+bash integration-tests/vehicle-etl-integration-test  ./run-etl-test.sh   `
 
-### Project Structure
+### Project Directory Structure
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   Copyintegration-tests/  └── vehicle-etl-integration-test/      ├── README.md                  # Test-specific documentation      ├── Dockerfile.spark           # Custom Spark 2.4.8 with Scala 2.11      ├── docker-compose-spark.yml   # Docker Compose configuration      ├── run-etl-test.sh            # Main test execution script      ├── data/                      # Test data      │   └── vehicles.csv           # Sample vehicle data      └── sql/                       # SQL scripts for test phases          ├── init-tables.sql        # Table creation and initialization          └── verify-results.sql     # Result verification queries   `
+```plaintext
+integration-tests/
+└── vehicle-etl-integration-test/
+    ├── README.md                # Test-specific documentation
+    ├── Dockerfile.spark         # Custom Spark 2.4.8 with Scala 2.11
+    ├── docker-compose-spark.yml # Docker Compose configuration
+    ├── run-etl-test.sh          # Main test execution script
+    ├── data/                    # Test data
+    │   └── vehicles.csv         # Sample vehicle data
+    └── sql/                     # SQL scripts for test phases
+        ├── init-tables.sql      # Table creation and initialization
+        └── verify-results.sql   # Result verification queries
+
 
 ### Lessons Learned
 
