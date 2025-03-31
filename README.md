@@ -234,6 +234,7 @@ integration-tests/
     └── sql/                     # SQL scripts for test phases
         ├── init-tables.sql      # Table creation and initialization
         └── verify-results.sql   # Result verification queries
+```
 
 
 ### Lessons Learned
