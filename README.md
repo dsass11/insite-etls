@@ -257,3 +257,45 @@ integration-tests/
     
 
 The integration tests serve not only as validation tools but also as documentation of the expected behavior of the ETL processes.
+
+## ETL Metrics Framework
+
+The framework includes a comprehensive metrics collection system to monitor and analyze ETL job performance and data quality.
+
+### Key Features
+
+- **Automatic Metrics Collection**: Technical metrics like execution time, record counts, and job status are collected automatically
+- **Business Metrics Support**: ETL implementations can add domain-specific metrics relevant to their data
+- **Separation of Concerns**: Core ETL logic remains clean while metrics are collected non-intrusively
+- **Extensible Reporting**: Metrics can be reported to various destinations (console, databases, monitoring systems)
+
+### Technical Metrics
+
+The framework automatically collects the following technical metrics:
+
+- **Job Information**: Job ID, ETL class name, execution timestamp
+- **Execution Timing**: Duration of doLogic and doOutput phases
+- **Status Tracking**: SUCCESS, FAILED, or RUNNING status
+- **Record Counts**: Number of records processed
+- **Error Details**: When failures occur, error information is captured
+
+### Business Metrics
+
+ETL implementations can provide custom business metrics by overriding the `collectBusinessMetrics` method:
+
+```scala
+override def collectBusinessMetrics(data: DataFrame, metrics: ETLMetrics)
+                                (implicit spark: SparkSession, properties: Map[String, String]): ETLMetrics = {
+  // Add business-specific metrics
+  metrics.addBusinessMetric("metric_name", value)
+}
+```
+### Usage 
+Metrics are automatically collected during ETL execution. You can specify a custom metrics reporter:
+```aidl
+spark-submit --class com.insite.etl.common.ETLRunner \
+  insite-etls-1.0-SNAPSHOT.jar \
+  com.insite.etl.vehicle.VehicleETL \
+  metrics-reporter=console \
+  metrics-name="Vehicle Processing Job"
+```

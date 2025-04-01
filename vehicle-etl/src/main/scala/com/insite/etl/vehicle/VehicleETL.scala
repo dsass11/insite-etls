@@ -2,11 +2,12 @@ package com.insite.etl.vehicle
 
 import com.insite.etl.common.ETL
 import com.insite.etl.common.utils.SparkUtils
+import com.insite.etl.common.metrics.ETLMetrics
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions._
 
 /**
- * Implementation of ETL for vehicle data processing
+ * Implementation of ETL for vehicle data processing with metrics support
  */
 class VehicleETL extends ETL {
 
@@ -18,14 +19,12 @@ class VehicleETL extends ETL {
    * @return DataFrame with processed data
    */
   override def doLogic()(implicit spark: SparkSession, properties: Map[String, String]): DataFrame = {
-    // Get source table from properties, with default fallback
+    // Implementation remains the same as before
     val sourceTable = properties.getOrElse("source-table", "vehicle_datalake.events")
     println(s"Reading from source table: $sourceTable")
 
-    // Read from the configured source table
     val eventsDF = spark.sql(s"SELECT * FROM $sourceTable")
 
-    // Apply transformations
     val processedDF = eventsDF
       .withColumn("manufacturer", trim(col("manufacturer")))
       .filter(col("vin").isNotNull)
@@ -35,11 +34,9 @@ class VehicleETL extends ETL {
           .when(col("gearPosition") === "N", "0")
           .when(col("gearPosition") === "P", "0")
           .otherwise(col("gearPosition")))
-      // Add partition columns based on timestamp
       .withColumn("date", date_format(from_unixtime(col("timestamp") / 1000), "yyyy-MM-dd"))
       .withColumn("hour", hour(from_unixtime(col("timestamp") / 1000)))
 
-    // Return the processed data
     processedDF
   }
 
@@ -51,6 +48,7 @@ class VehicleETL extends ETL {
    * @param properties Implicit configuration properties
    */
   override def doOutput(data: DataFrame)(implicit spark: SparkSession, properties: Map[String, String]): Unit = {
+    // Implementation remains the same as before - no changes needed
     // Get configuration properties with defaults
     val targetTable = properties.getOrElse("target-table", "vehicle_datalake.processed_events")
     val basePath = properties.getOrElse("base-path", "s3://my-bucket/data")
@@ -77,5 +75,68 @@ class VehicleETL extends ETL {
 
         println(s"Successfully updated partitioned table $targetTable")
     }
+  }
+
+  /**
+   * Collect business-specific metrics for vehicle data
+   *
+   * @param data DataFrame to analyze
+   * @param metrics Current metrics object to enhance
+   * @param spark Implicit SparkSession
+   * @param properties Implicit configuration properties
+   * @return Updated metrics object with business metrics
+   */
+  override def collectBusinessMetrics(data: DataFrame, metrics: ETLMetrics)
+                                     (implicit spark: SparkSession, properties: Map[String, String]): ETLMetrics = {
+    import spark.implicits._
+
+    // Start with the current metrics
+    var updatedMetrics = metrics
+
+    // Add data quality metrics - count nulls in key columns
+    val keyColumns = Seq("vin", "manufacturer", "model", "year")
+    keyColumns.foreach { colName =>
+      val nullCount = data.filter(col(colName).isNull).count()
+      val totalCount = data.count()
+      val nullPercentage = if (totalCount > 0) (nullCount.toDouble / totalCount * 100) else 0.0
+      updatedMetrics = updatedMetrics.addBusinessMetric(s"null_pct_$colName", nullPercentage)
+    }
+
+    // Count vehicles by manufacturer
+    val manufacturerCounts = data
+      .groupBy("manufacturer")
+      .count()
+      .collect()
+
+    manufacturerCounts.foreach { row =>
+      val manufacturer = row.getAs[String]("manufacturer")
+      val count = row.getAs[Long]("count")
+      updatedMetrics = updatedMetrics.addBusinessMetric(s"count_$manufacturer", count)
+    }
+
+    // Count by gear position
+    val gearCounts = data
+      .groupBy("gearPosition")
+      .count()
+      .collect()
+
+    gearCounts.foreach { row =>
+      val gearPosition = row.getAs[String]("gearPosition")
+      val count = row.getAs[Long]("count")
+      updatedMetrics = updatedMetrics.addBusinessMetric(s"gear_pos_$gearPosition", count)
+    }
+
+    // Date range metrics
+    val dateStats = data.agg(
+      min("date").as("min_date"),
+      max("date").as("max_date")
+    ).collect().head
+
+    updatedMetrics = updatedMetrics
+      .addBusinessMetric("min_date", dateStats.getAs[String]("min_date"))
+      .addBusinessMetric("max_date", dateStats.getAs[String]("max_date"))
+
+    // Return the updated metrics
+    updatedMetrics
   }
 }
