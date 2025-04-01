@@ -50,6 +50,11 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_2.11</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- Common module test classes -->
         <dependency>
             <groupId>com.insite.etl</groupId>
