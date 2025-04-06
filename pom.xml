@@ -19,10 +19,13 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <scala.version>2.11.8</scala.version>
-        <scala.binary.version>2.11</scala.binary.version>
-        <spark.version>2.4.8</spark.version>
-        <hadoop.version>2.7.7</hadoop.version>
+        <!-- Updated Scala version for Spark 3 -->
+        <scala.version>2.12.15</scala.version>
+        <scala.binary.version>2.12</scala.binary.version>
+        <!-- Updated Spark version -->
+        <spark.version>3.3.0</spark.version>
+        <!-- Updated Hadoop version -->
+        <hadoop.version>3.3.2</hadoop.version>
     </properties>
 
     <dependencyManagement>
@@ -33,10 +36,11 @@
                 <artifactId>scala-library</artifactId>
                 <version>${scala.version}</version>
             </dependency>
+            <!-- Updated ScalaTest for Scala 2.12 -->
             <dependency>
                 <groupId>org.scalatest</groupId>
-                <artifactId>scalatest_2.11</artifactId>
-                <version>3.0.8</version>
+                <artifactId>scalatest_${scala.binary.version}</artifactId>
+                <version>3.2.12</version>
                 <scope>test</scope>
             </dependency>
             <!-- Spark Core -->
@@ -77,11 +81,11 @@
                 <version>1.2.17</version>
             </dependency>
 
-            <!-- Guava -->
+            <!-- Updated Guava for Spark 3 compatibility -->
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>16.0.1</version>
+                <version>31.1-jre</version>
             </dependency>
 
             <!-- Testing -->
@@ -91,6 +95,13 @@
                 <version>4.13.2</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.scalatest</groupId>
+                <artifactId>scalatest_2.12</artifactId>
+                <version>3.2.15</version>
+                <scope>test</scope>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -125,6 +136,27 @@
                         <target>${maven.compiler.target}</target>
                     </configuration>
                 </plugin>
+
+                <!-- Test JAR generation -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.3.0</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>test-jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- Surefire plugin for tests -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.0.0</version>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -139,6 +171,18 @@
             </releases>
             <snapshots>
                 <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <!-- Add Spark Packages repository -->
+        <repository>
+            <id>spark-packages</id>
+            <name>Spark Packages Repository</name>
+            <url>https://repos.spark-packages.org/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
             </snapshots>
         </repository>
     </repositories>

@@ -4,7 +4,6 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 import scala.collection.JavaConverters._
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 
-
 /**
  * Utility functions for working with Spark
  */
@@ -26,7 +25,14 @@ object SparkUtils {
     val sessionBuilder = SparkSession.builder()
       .appName(appName)
       .master("local[*]") // Use local mode for development
+      // Updated config for Spark 3
       .config("spark.sql.warehouse.dir", warehouseDir)
+      // Add additional Spark 3 configurations
+      // In SparkUtils.scala and TestUtils.scala
+      .config("spark.sql.legacy.allowNonEmptyLocationInCTAS", "true")
+      .config("spark.sql.adaptive.enabled", "true")
+      // Spark 3 extension configuration
+      .config("spark.sql.extensions", "org.apache.spark.sql.hive.HiveMetastoreClientImpl")
 
     val finalBuilder = if (enableHive) {
       sessionBuilder.enableHiveSupport()
@@ -44,7 +50,6 @@ object SparkUtils {
    * @param query SQL query to execute
    * @return DataFrame with the query result
    */
-
   def executeSql(spark: SparkSession, query: String): DataFrame = {
     spark.sql(query)
   }
@@ -58,7 +63,6 @@ object SparkUtils {
    * @param partitionCols Columns to partition by
    * @return Map of partition columns and their values
    */
-
   def writePartitioned(
                         df: DataFrame,
                         basePath: String,
@@ -102,9 +106,10 @@ object SparkUtils {
       .mode("overwrite")
       .save(fullPath)
 
-    // Get partition values from accumulators
+    // Get partition values from accumulators - updated for Scala 2.12 compatibility
     val accumulatedPartitionValues = partitionCols.map { colName =>
       val accumulator = accumulators(colName)
+      // Converting Java collection to Scala collection in Scala 2.12
       val values = accumulator.value.asScala.toSet.toArray
       colName -> values
     }.toMap
