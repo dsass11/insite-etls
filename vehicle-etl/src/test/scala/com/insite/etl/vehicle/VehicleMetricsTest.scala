@@ -1,13 +1,14 @@
 package com.insite.etl.vehicle
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.BeforeAndAfterAll
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import com.insite.etl.common.metrics.ETLMetrics
 import org.apache.spark.sql.functions.{to_date, from_unixtime, hour}
 import org.scalatest.BeforeAndAfterAll
 
-class VehicleMetricsTest extends FunSuite with Matchers with BeforeAndAfterAll {
+class VehicleMetricsTest extends AnyFunSuite with Matchers with BeforeAndAfterAll {
   // Create a test Spark session
   val spark: SparkSession = SparkSession.builder()
     .master("local[1]")
