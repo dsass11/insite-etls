@@ -299,3 +299,93 @@ spark-submit --class com.insite.etl.common.ETLRunner \
   metrics-reporter=console \
   metrics-name="Vehicle Processing Job"
 ```
+
+# Customer Purchase Graph ETL
+
+A Spark ETL module that analyzes retail customer purchase patterns using graph analytics.
+
+## Overview
+
+This module builds a graph representation of customer purchase data, where:
+- Customers and products are represented as vertices (nodes)
+- Purchase transactions are represented as edges (relationships)
+
+The resulting graph enables powerful analytics to identify influential customers, popular products, and purchase communities.
+
+## Graph Structure
+```
+      (Customer 1)
+      /          \
+     /            \
+    /              \
+PURCHASED        PURCHASED
+    \              /
+     \            /
+      v          v
+(Product B)    (Product A)
+      \          /
+       \        /
+        \      /
+       PURCHASED
+          |
+          |
+          v
+     (Customer 2)
+```
+
+### Vertices (Nodes)
+- **Customer vertices**: Contain customer data such as ID, name, location, age
+- **Product vertices**: Contain product data such as ID, name, category, price
+
+### Edges (Relationships)
+- **PURCHASED relationship**: Links customers to products they've purchased, with attributes like purchase date, quantity, and amount
+
+## Analytics Capabilities
+
+This module leverages GraphFrames to perform advanced graph analytics:
+
+1. **PageRank Analysis**: Identifies influential nodes in the purchase network
+   - High-PageRank customers may be trend-setters or influencers
+   - High-PageRank products may be gateway purchases leading to other purchases
+
+2. **Connected Components**: Identifies distinct purchasing communities
+   - Helps segment customers by purchasing patterns
+   - Reveals product clusters that are frequently purchased together
+
+3. **Customer Influence Metrics**: Ranks customers by their influence in the network
+   - Identifies high-value customers for marketing campaigns
+   - Can help predict product adoption trends
+
+4. **Product Popularity Analysis**: Ranks products by their centrality in the network
+   - Goes beyond simple purchase counts to understand product relationships
+   - Helps identify products that drive additional purchases
+
+## How It Works
+
+1. **Data Ingestion**: Reads from existing and new customer, product, and purchase data
+2. **Graph Construction**: Builds vertices for customers/products and edges for purchases
+3. **Analytics Processing**: Runs graph algorithms to extract insights
+4. **Output**: Writes processed graph data to tables for reporting and visualization
+
+## Testing
+
+The analytics tests demonstrate:
+- Graph construction from retail data
+- PageRank calculation for identifying important nodes
+- Community detection through connected components
+- Identification of influential customers and popular products
+
+## Example Usage
+
+```scala
+// Initialize with configuration
+val etl = new CustomerPurchaseGraphETL()
+
+// Process the graph data
+val result = etl.doLogic()
+
+// Write results to output tables
+etl.doOutput(result)
+
+// Access analytics results
+val metrics = etl.collectBusinessMetrics(result, initialMetrics)
