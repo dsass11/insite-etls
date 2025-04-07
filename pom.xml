@@ -12,6 +12,7 @@
     <modules>
         <module>common</module>
         <module>vehicle-etl</module>
+        <module>customer-purchase-graph-etl</module>
         <!-- Add other modules here as you create them -->
     </modules>
 
