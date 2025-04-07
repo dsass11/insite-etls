@@ -314,23 +314,43 @@ The resulting graph enables powerful analytics to identify influential customers
 
 ## Graph Structure
 ```
-      (Customer 1)
-      /          \
-     /            \
-    /              \
-PURCHASED        PURCHASED
-    \              /
-     \            /
-      v          v
-(Product B)    (Product A)
-      \          /
-       \        /
-        \      /
-       PURCHASED
-          |
-          |
-          v
-     (Customer 2)
+⭕ John (Customer #1)
+      /     \
+     /       \
+    /         \
+PURCHASED    PURCHASED
+2023-01-15   2023-02-01
+$1200        $300
+   |          |
+   |          |
+   v          v
+  ⭕         ⭕
+Laptop      Headphones
+(#101)      (#102)
+   |          |
+   |          |
+PURCHASED    PURCHASED
+2023-01-20   2023-03-01
+$1200        $300
+   |          |
+   |          |
+   v          v
+   ⭕ Alice (Customer #2)
+   
+   ⭕ Bob (Customer #3)
+    \
+     \
+      \
+    PURCHASED
+    2023-02-15
+    $800
+      \
+       \
+        \
+         v
+         ⭕
+       Tablet
+       (#103)
 ```
 
 ### Vertices (Nodes)
@@ -340,7 +360,7 @@ PURCHASED        PURCHASED
 ### Edges (Relationships)
 - **PURCHASED relationship**: Links customers to products they've purchased, with attributes like purchase date, quantity, and amount
 
-## Analytics Capabilities
+## Analytics Capabilities and Insights
 
 This module leverages GraphFrames to perform advanced graph analytics:
 
@@ -359,6 +379,14 @@ This module leverages GraphFrames to perform advanced graph analytics:
 4. **Product Popularity Analysis**: Ranks products by their centrality in the network
    - Goes beyond simple purchase counts to understand product relationships
    - Helps identify products that drive additional purchases
+
+From this sample data, we can extract several valuable insights:
+
+1. **Customer Communities**: John and Alice form a distinct purchasing community separate from Bob
+2. **Product Centrality**: The Laptop has the highest influence score, indicating it's a central product
+3. **Customer Influence**: John and Alice have equal influence in the network
+4. **Product Relationships**: Customers who buy Laptops also tend to buy Headphones
+5. **Isolated Segments**: Bob and his Tablet purchase represent an isolated segment that may benefit from targeted marketing
 
 ## How It Works
 
