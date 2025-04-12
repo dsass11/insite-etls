@@ -417,6 +417,7 @@ etl.doOutput(result)
 
 // Access analytics results
 val metrics = etl.collectBusinessMetrics(result, initialMetrics)
+```
 
 Pipeline Manager
 Background
