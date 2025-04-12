@@ -1,0 +1,17 @@
+dag_id: vehicle_etl
+default_args:
+  owner: "Data Engineering"
+  start_date: 2025-04-08
+  retries: 0
+  retry_delay_sec: 300
+schedule_interval: "0 0 * * *"
+tasks:
+  start:
+    operator: airflow.operators.dummy.DummyOperator
+  transform_data:
+    operator: airflow.operators.bash.BashOperator
+    bash_command: "docker exec spark-runner spark-submit --class com.insite.etl.common.ETLRunner --master local[*] --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive-metastore:9083 /app/jars/vehicle-etl.jar com.insite.etl.vehicle.VehicleETL partition-columns=date,hour base-path=/tmp/vehicle-data target-table=vehicle_datalake.processed_vehicles version=v001"
+    dependencies: [ start ]
+  finish:
+    operator: airflow.operators.dummy.DummyOperator
+    dependencies: [transform_data]

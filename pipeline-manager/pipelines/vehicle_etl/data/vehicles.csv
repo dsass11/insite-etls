@@ -1,0 +1,4 @@
+id,make,model,year,color,vin,manufacturer,gearPosition,timestamp
+1,Toyota,Camry,2020,Blue,ABC123XYZ456789,Toyota,D,1617235200000
+2,Honda,Accord,2021,Black,DEF456UVW789012,Honda,P,1617321600000
+3,Ford,F-150,2019,Red,GHI789RST012345,Ford,N,1617408000000
