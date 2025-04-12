@@ -419,33 +419,34 @@ etl.doOutput(result)
 val metrics = etl.collectBusinessMetrics(result, initialMetrics)
 ```
 
-Pipeline Manager
-Background
+# Pipeline Manager
+## Background
 Pipeline Manager is a framework designed to streamline the creation, management, and execution of ETL (Extract, Transform, Load) pipelines using Apache Airflow and Apache Spark. It allows data engineers to define data pipelines in simple YAML configurations and handles the complexities of deployment and execution.
 Strategic Value
 
-Simplified Pipeline Management: Abstract away the complexities of Airflow DAG definition and Docker configuration
+## Simplified Pipeline Management: 
+Abstract away the complexities of Airflow DAG definition and Docker configuration
 Standardization: Enforce consistent patterns across all data pipelines
 Self-contained Pipelines: Each pipeline includes its own code, configurations, SQL scripts, and data
 Reproducibility: Pipeline definitions are version-controlled and can be easily deployed across environments
 Developer Experience: Reduce boilerplate and allow data engineers to focus on business logic rather than infrastructure
 
-Architecture
-The Pipeline Manager consists of:
+## Architecture
+### The Pipeline Manager consists of:
 
 A YAML-based pipeline definition format
 A CLI tool to generate DAGs from YAML and set up execution environments
 Docker containers for Airflow, Spark, and Hive Metastore
 A consistent folder structure for organizing pipeline assets
 
-Getting Started
-Prerequisites
+## Getting Started
+### Prerequisites
 
 Docker and Docker Compose
 Python 3.8+
 Access to the required JAR files for your ETL jobs
 
-Pipeline Structure
+## Pipeline Structure
 Each pipeline should follow this structure:
 
 ```
@@ -460,22 +461,23 @@ pipelines/
 └── your-etl.jar
 ```
 
-Operations Guide
-Creating a New Pipeline
+## Operations Guide
+### Creating a New Pipeline
 
 Create a directory structure as shown above
 Define your pipeline in YAML format
 Add SQL scripts to initialize required tables
 Add your JAR files containing ETL logic
 
-Generate a DAG from YAML
+### Generate a DAG from YAML
 
 ```
 python -m pipeline_manager.cli generate pipelines/your_pipeline
 ```
 
 This will create a .dag file from your YAML definition.
-Set Up and Run a Pipeline
+
+### Set Up and Run a Pipeline
 
 ```
 python -m pipeline_manager.cli setup pipelines/your_pipeline
@@ -488,7 +490,7 @@ Start the Docker environment (Hive Metastore, Airflow, etc.)
 Run SQL initialization scripts
 Make your JAR files available to the environment
 
-Access the Airflow UI
+### Access the Airflow UI
 After running the setup command, access the Airflow UI at:
 
 URL: http://localhost:8081
@@ -498,34 +500,37 @@ Password: admin
 From here, you can manually trigger your DAG to execute the pipeline.
 Docker Commands
 
-View running containers:
+### View running containers:
 
 ```
 docker compose -f docker/docker-compose-airflow-spark.yml ps
 ```
-View logs from a specific service:
+
+### View logs from a specific service:
 
 ```
 docker compose -f docker/docker-compose-airflow-spark.yml logs airflow-webserver
 ```
-Execute a command in the Spark container:
+
+### Execute a command in the Spark container:
 
 ```
 docker exec -it spark-runner bash
 ```
-Shut down the environment:
+
+### Shut down the environment:
 
 ```
 docker compose -f docker/docker-compose-airflow-spark.yml down
 ```
 
-Troubleshooting
+### Troubleshooting
 
 If you encounter port conflicts, edit the docker/docker-compose-airflow-spark.yml file to change the port mappings.
 For issues with the SQL execution, check the Spark container logs.
 If DAGs fail, check the Airflow task logs in the UI for detailed error messages.
 
-Examples
+## Examples
 See the pipelines/vehicle_etl directory for a complete example pipeline that demonstrates how to:
 
 Define a pipeline using YAML
